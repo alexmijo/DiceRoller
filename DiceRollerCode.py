@@ -79,6 +79,12 @@ class DiceProbabilityDistribution:
         set_negative_values_to_0(self.probabilities)
         normalize(self.probabilities)
 
+    def roll_and_update(self):
+        # TODO: Docstring
+        roll = self.roll()
+        self.update(roll)
+        return roll
+
     def undo_update(self):
         # TODO: Docstring
         self.redo_states.append((self.probabilities, self.frequencies))
@@ -115,9 +121,7 @@ def main():
         print(dice)
         prompt = "Press Enter to roll"
         input(prompt)
-        roll = dice.roll()
-        print("Rolled a", roll)
-        dice.update(roll)
+        print("Roll: ", dice.roll_and_update())
 
 def old_main():
     mostRecentRoll = 0
