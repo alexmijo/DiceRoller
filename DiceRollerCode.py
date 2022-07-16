@@ -131,36 +131,43 @@ class CatanDiceProbabilityDistribution:
         self.probabilities["Player One 7"] = self.probabilities[7]
         self.probabilities["Player Two 7"] = self.probabilities[7]
         del self.probabilities[7]
-        self.current_player = 1
 
-def main():
+def run_no_split_7s_catan(num_players):
     # TODO: Docstring
     dice = DiceProbabilityDistribution(num_dice=2, num_sides=6)
+    player = 1
     while True:
+        player = player % num_players
+        if player == 0:
+            player = num_players
         print(dice)
+        prompt = f"Player {player}'s turn. "
         if dice.can_undo() and dice.can_redo():
-            prompt = "Press Enter to roll or type UNDO or REDO:"
+            prompt += "Press Enter to roll or type UNDO or REDO: "
         elif dice.can_undo():
-            prompt = "Press Enter to roll or type UNDO:"
+            prompt += "Press Enter to roll or type UNDO: "
         elif dice.can_redo():
-            prompt = "Press Enter to roll or type REDO:"
+            prompt += "Press Enter to roll or type REDO: "
         else:
-            prompt = "Press Enter to roll:"
+            prompt += "Press Enter to roll: "
         user_input = input(prompt)
         if user_input == "UNDO":
             try:
                 dice.undo()
+                player -= 1
                 print("Successful undo")
             except ValueError as e:
                 print(e)
         elif user_input == "REDO":
             try:
                 dice.redo()
+                player += 1
                 print("Successful redo")
             except ValueError as e:
                 print(e)
         elif user_input == "":
             print("Roll: ", dice.roll_and_update())
+            player += 1
         else:
             print("Invalid input, no action done")
 
