@@ -85,25 +85,43 @@ class DiceProbabilityDistribution:
         self.update(roll)
         return roll
 
-    def undo_update(self):
+    def can_undo(self):
         # TODO: Docstring
-        self.redo_states.append((self.probabilities, self.frequencies))
-        self.probabilities, self.frequencies = self.undo_states.pop()
+        if self.undo_states:
+            return True
+        return False
 
-    def redo_update(self):
+    def undo(self):
         # TODO: Docstring
-        self.undo_states.append((self.probabilities, self.frequencies))
-        self.probabilities, self.frequencies = self.redo_states.pop()
+        if self.can_undo():
+            self.redo_states.append((self.probabilities, self.frequencies))
+            self.probabilities, self.frequencies = self.undo_states.pop()
+        else:
+            raise ValueError("Can't undo, no previous state to return to")
+
+    def can_redo(self):
+        # TODO: Docstring
+        if self.redo_states:
+            return True
+        return False
+
+    def redo(self):
+        # TODO: Docstring
+        if self.can_redo():
+            self.undo_states.append((self.probabilities, self.frequencies))
+            self.probabilities, self.frequencies = self.redo_states.pop()
+        else:
+            raise ValueError("Can't redo, no immediately recent undos to redo")
 
     def __str__(self):
         string = ""
         for roll, probability in self.probabilities.items():
             if roll < 10:
-                string += " " + str(roll) + ": " + "{0:3d}".format(
-                    int(100 * probability)) + "% chance, " + str(self.frequencies[roll]) + "\n"
+                string += "\n " + str(roll) + ": " + "{0:3d}".format(
+                    int(100 * probability)) + "% chance, " + str(self.frequencies[roll])
             else:
-                string += str(roll) + ": " + "{0:3d}".format(
-                    int(100 * probability)) + "% chance, " + str(self.frequencies[roll]) + "\n"
+                string += "\n" + str(roll) + ": " + "{0:3d}".format(
+                    int(100 * probability)) + "% chance, " + str(self.frequencies[roll])
         return string
 
 class CatanDiceProbabilityDistribution:
@@ -116,12 +134,35 @@ class CatanDiceProbabilityDistribution:
         self.current_player = 1
 
 def main():
+    # TODO: Docstring
     dice = DiceProbabilityDistribution(num_dice=2, num_sides=6)
     while True:
         print(dice)
-        prompt = "Press Enter to roll"
-        input(prompt)
-        print("Roll: ", dice.roll_and_update())
+        if dice.can_undo() and dice.can_redo():
+            prompt = "Press Enter to roll or type UNDO or REDO:"
+        elif dice.can_undo():
+            prompt = "Press Enter to roll or type UNDO:"
+        elif dice.can_redo():
+            prompt = "Press Enter to roll or type REDO:"
+        else:
+            prompt = "Press Enter to roll:"
+        user_input = input(prompt)
+        if user_input == "UNDO":
+            try:
+                dice.undo()
+                print("Successful undo")
+            except ValueError as e:
+                print(e)
+        elif user_input == "REDO":
+            try:
+                dice.redo()
+                print("Successful redo")
+            except ValueError as e:
+                print(e)
+        elif user_input == "":
+            print("Roll: ", dice.roll_and_update())
+        else:
+            print("Invalid input, no action done")
 
 def old_main():
     mostRecentRoll = 0
