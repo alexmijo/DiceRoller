@@ -42,3 +42,11 @@ if (num_failed == 0):
     print(num_run, "tests run. All tests passed.")
 else:
     print(num_run, "tests run.", num_failed, "tests failed.")
+
+dice = DiceRollerCode.DiceProbabilityDistribution(num_dice=2, num_sides=6, aggressiveness=2)
+dice.frequencies = {2: 0, 3: 1, 4: 2, 5: 3, 6: 3, 7: 3, 8: 2, 9: 2, 10: 0, 11: 1, 12: 0}
+dice.frequencies[2] -= 1
+dice.update(2)
+print(dice)
+dice.update(11)
+print(dice)
