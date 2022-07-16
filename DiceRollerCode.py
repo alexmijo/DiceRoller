@@ -17,6 +17,7 @@ def dice_sum_probability(sum, num_dice, num_sides):
     probability /= num_sides**num_dice
     return probability
 
+
 def normalize(distribution):
     # TODO: Docstring
     sum = 0
@@ -25,11 +26,13 @@ def normalize(distribution):
     for key in distribution:
         distribution[key] /= sum
 
+
 def normalized(distribution):
     # TODO: Docstring
     normalized_distribution = distribution.copy()
     normalize(normalized_distribution)
     return normalized_distribution
+
 
 def set_negative_values_to_0(distribution):
     # TODO: Docstring
@@ -37,17 +40,29 @@ def set_negative_values_to_0(distribution):
         if distribution[key] < 0:
             distribution[key] = 0
 
+
 class DiceProbabilityDistribution:
     #TODO: Docstring
 
     def __init__(self, num_dice, num_sides):
         # TODO: Docstring
         self.probabilities = {roll: dice_sum_probability(
-            roll, num_dice, num_sides) for roll in range(num_dice * num_sides)}
+            roll, num_dice, num_sides) for roll in range(num_dice, num_dice * num_sides + 1)}
         self.classical_probabilities = self.probabilities.copy()
-        self.frequencies = {roll: 0 for roll in range(num_dice * num_sides)}
+        self.frequencies = {roll: 0 for roll in range(num_dice, num_dice * num_sides + 1)}
         self.undo_states = []
         self.redo_states = []
+
+    def roll(self):
+        # TODO: Docstring
+        rand = random.random()
+        cumulative = 0
+        for roll, probability in self.probabilities.items():
+            cumulative += probability
+            if rand < cumulative:
+                return roll
+        # Only needed cause floating point errors could cause probabilities to sum to < 1
+        return roll
 
     def update(self, new_roll):
         # TODO: Docstring
@@ -56,7 +71,7 @@ class DiceProbabilityDistribution:
         self.undo_states.append((self.probabilities.copy(), self.frequencies.copy()))
         self.redo_states = []
         self.frequencies[new_roll] += 1
-        for roll, fraction_of_rolls in normalized(self.frequencies):
+        for roll, fraction_of_rolls in normalized(self.frequencies).items():
             # TODO: Maybe multiply deviation_from_expected by some constant such that
             #  set_negative_values_to_0 isn't necessary? Maybe that's not better though.
             deviation_from_expected = fraction_of_rolls - self.classical_probabilities[roll]
@@ -74,6 +89,17 @@ class DiceProbabilityDistribution:
         self.undo_states.append((self.probabilities, self.frequencies))
         self.probabilities, self.frequencies = self.redo_states.pop()
 
+    def __str__(self):
+        string = ""
+        for roll, probability in self.probabilities.items():
+            if roll < 10:
+                string += " " + str(roll) + ": " + "{0:3d}".format(
+                    int(100 * probability)) + "% chance, " + str(self.frequencies[roll]) + "\n"
+            else:
+                string += str(roll) + ": " + "{0:3d}".format(
+                    int(100 * probability)) + "% chance, " + str(self.frequencies[roll]) + "\n"
+        return string
+
 class CatanDiceProbabilityDistribution:
     # Nothing to inherit that wouldn't have to get overridden
     def __init__(self):
@@ -82,10 +108,18 @@ class CatanDiceProbabilityDistribution:
         self.probabilities["Player Two 7"] = self.probabilities[7]
         del self.probabilities[7]
         self.current_player = 1
-    
-
 
 def main():
+    dice = DiceProbabilityDistribution(num_dice=2, num_sides=6)
+    while True:
+        print(dice)
+        prompt = "Press Enter to roll"
+        input(prompt)
+        roll = dice.roll()
+        print("Rolled a", roll)
+        dice.update(roll)
+
+def old_main():
     mostRecentRoll = 0
     rolls = {2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0}
     chances = {2: 1.0/36, 3: 2.0/36, 4: 3.0/36, 5: 4.0/36, 6: 5.0/36,
