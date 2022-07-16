@@ -44,7 +44,7 @@ def set_negative_values_to_0(distribution):
 class DiceProbabilityDistribution:
     #TODO: Docstring
 
-    def __init__(self, num_dice, num_sides):
+    def __init__(self, num_dice, num_sides, aggressiveness=1):
         # TODO: Docstring
         self.probabilities = {roll: dice_sum_probability(
             roll, num_dice, num_sides) for roll in range(num_dice, num_dice * num_sides + 1)}
@@ -52,6 +52,7 @@ class DiceProbabilityDistribution:
         self.frequencies = {roll: 0 for roll in range(num_dice, num_dice * num_sides + 1)}
         self.undo_states = []
         self.redo_states = []
+        self.aggressiveness = aggressiveness
 
     def roll(self):
         # TODO: Docstring
@@ -75,7 +76,8 @@ class DiceProbabilityDistribution:
             # TODO: Maybe multiply deviation_from_expected by some constant such that
             #  set_negative_values_to_0 isn't necessary? Maybe that's not better though.
             deviation_from_expected = fraction_of_rolls - self.classical_probabilities[roll]
-            self.probabilities[roll] = self.classical_probabilities[roll] - deviation_from_expected
+            self.probabilities[roll] = self.classical_probabilities[roll] - \
+                self.aggressiveness * deviation_from_expected
         set_negative_values_to_0(self.probabilities)
         normalize(self.probabilities)
 
@@ -124,6 +126,7 @@ class DiceProbabilityDistribution:
                     int(100 * probability)) + "% chance, " + str(self.frequencies[roll])
         return string
 
+
 class CatanDiceProbabilityDistribution:
     # Nothing to inherit that wouldn't have to get overridden
     def __init__(self):
@@ -132,10 +135,12 @@ class CatanDiceProbabilityDistribution:
         self.probabilities["Player Two 7"] = self.probabilities[7]
         del self.probabilities[7]
 
+
 def run_no_split_7s_catan(num_players):
     # TODO: Docstring
-    dice = DiceProbabilityDistribution(num_dice=2, num_sides=6)
+    dice = DiceProbabilityDistribution(num_dice=2, num_sides=6, aggressiveness=2)
     player = 1
+    # Just keyboard interrupt to stop
     while True:
         player = player % num_players
         if player == 0:
