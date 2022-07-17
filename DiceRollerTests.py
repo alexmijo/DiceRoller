@@ -48,5 +48,7 @@ dice.frequencies = {2: 0, 3: 1, 4: 2, 5: 3, 6: 3, 7: 3, 8: 2, 9: 2, 10: 0, 11: 1
 dice.frequencies[2] -= 1
 dice.update(2)
 print(dice)
+print(dice.probabilities[10])
 dice.update(11)
 print(dice)
+print(dice.probabilities[10])

@@ -25,6 +25,7 @@ def normalize(distribution):
         sum += value
     for key in distribution:
         distribution[key] /= sum
+    print(sum)
 
 
 def normalized(distribution):
@@ -75,11 +76,16 @@ class DiceProbabilityDistribution:
         for roll, fraction_of_rolls in normalized(self.frequencies).items():
             # TODO: Maybe multiply deviation_from_expected by some constant such that
             #  set_negative_values_to_0 isn't necessary? Maybe that's not better though.
+            if roll == 10:
+                print(fraction_of_rolls)
             deviation_from_expected = fraction_of_rolls - self.classical_probabilities[roll]
             self.probabilities[roll] = self.classical_probabilities[roll] - \
                 self.aggressiveness * deviation_from_expected
+        print(self.probabilities)
         set_negative_values_to_0(self.probabilities)
+        print(self.probabilities)
         normalize(self.probabilities)
+        print(self.probabilities)
 
     def roll_and_update(self):
         # TODO: Docstring
@@ -138,7 +144,7 @@ class CatanDiceProbabilityDistribution:
 
 def run_no_split_7s_catan(num_players):
     # TODO: Docstring
-    dice = DiceProbabilityDistribution(num_dice=2, num_sides=6, aggressiveness=2)
+    dice = DiceProbabilityDistribution(num_dice=2, num_sides=6, aggressiveness=1)
     player = 1
     # Just keyboard interrupt to stop
     while True:
