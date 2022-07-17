@@ -25,7 +25,6 @@ def normalize(distribution):
         sum += value
     for key in distribution:
         distribution[key] /= sum
-    print(sum)
 
 
 def normalized(distribution):
@@ -68,24 +67,21 @@ class DiceProbabilityDistribution:
 
     def update(self, new_roll):
         # TODO: Docstring
+        # TODO: See if there's some non-dumb way to make this not decrease any non-rolled
+        #  probabilities. There probably is. The issue lies in just setting negatives to 0 and then
+        #  renormalizing, rather than distributing that negative stuff out according to
+        #  underrepresentedness.
         # These will take up a lot of memory, but it's fine cause games aren't expected to last
         #  super long
         self.undo_states.append((self.probabilities.copy(), self.frequencies.copy()))
         self.redo_states = []
         self.frequencies[new_roll] += 1
         for roll, fraction_of_rolls in normalized(self.frequencies).items():
-            # TODO: Maybe multiply deviation_from_expected by some constant such that
-            #  set_negative_values_to_0 isn't necessary? Maybe that's not better though.
-            if roll == 10:
-                print(fraction_of_rolls)
             deviation_from_expected = fraction_of_rolls - self.classical_probabilities[roll]
             self.probabilities[roll] = self.classical_probabilities[roll] - \
                 self.aggressiveness * deviation_from_expected
-        print(self.probabilities)
         set_negative_values_to_0(self.probabilities)
-        print(self.probabilities)
         normalize(self.probabilities)
-        print(self.probabilities)
 
     def roll_and_update(self):
         # TODO: Docstring
@@ -142,9 +138,9 @@ class CatanDiceProbabilityDistribution:
         del self.probabilities[7]
 
 
-def run_no_split_7s_catan(num_players):
+def run_no_split_7s_catan(num_players, aggressiveness):
     # TODO: Docstring
-    dice = DiceProbabilityDistribution(num_dice=2, num_sides=6, aggressiveness=1)
+    dice = DiceProbabilityDistribution(num_dice=2, num_sides=6, aggressiveness=aggressiveness)
     player = 1
     # Just keyboard interrupt to stop
     while True:
@@ -181,6 +177,7 @@ def run_no_split_7s_catan(num_players):
             player += 1
         else:
             print("Invalid input, no action done")
+
 
 def old_main():
     mostRecentRoll = 0
