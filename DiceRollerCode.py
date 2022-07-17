@@ -124,18 +124,186 @@ class DiceProbabilityDistribution:
                 string += "\n " + str(roll) + ": " + "{0:3d}".format(
                     int(100 * probability)) + "% chance, " + str(self.frequencies[roll])
             else:
+                # TODO: Remove this clause
                 string += "\n" + str(roll) + ": " + "{0:3d}".format(
                     int(100 * probability)) + "% chance, " + str(self.frequencies[roll])
         return string
 
 
-class CatanDiceProbabilityDistribution:
-    # Nothing to inherit that wouldn't have to get overridden
-    def __init__(self):
-        DiceProbabilityDistribution.__init__(self, num_dice=2, num_sides=6)
-        self.probabilities["Player One 7"] = self.probabilities[7]
-        self.probabilities["Player Two 7"] = self.probabilities[7]
-        del self.probabilities[7]
+class CatanPlayerDiceProbabilityDistribution(DiceProbabilityDistribution):
+    # TODO: Docstring
+    # TODO: See if this should go inside CatanDiceProbabilityDistribution
+
+    def __init__(self, num_players, aggressiveness):
+        # TODO: Docstring
+        DiceProbabilityDistribution.__init__(
+            self, num_dice=2, num_sides=6, aggressiveness=aggressiveness)
+        self.num_players = num_players
+
+    def update(self, new_roll):
+        # TODO: Docstring
+        if new_roll == 7:
+            # TODO: Docstring
+            # TODO: See if there's some non-dumb way to make this not decrease any non-rolled
+            #  probabilities. There probably is. The issue lies in just setting negatives to 0 and
+            #  then renormalizing, rather than distributing that negative stuff out according to
+            #  underrepresentedness.
+            # These will take up a lot of memory, but it's fine cause games aren't expected to last
+            #  super long
+            self.undo_states.append((self.probabilities.copy(), self.frequencies.copy()))
+            self.redo_states = []
+            # This self.num_players (instead of 1) is the only thing different
+            self.frequencies[new_roll] += self.num_players
+            for roll, fraction_of_rolls in normalized(self.frequencies).items():
+                deviation_from_expected = fraction_of_rolls - self.classical_probabilities[roll]
+                self.probabilities[roll] = self.classical_probabilities[roll] - \
+                    self.aggressiveness * deviation_from_expected
+            set_negative_values_to_0(self.probabilities)
+            normalize(self.probabilities)
+        else:
+            DiceProbabilityDistribution.update(self, new_roll)
+
+    def update_undo_only(self):
+        self.undo_states.append((self.probabilities.copy(), self.frequencies.copy()))
+        self.redo_states = []
+
+    def seven_count(self):
+        return self.frequencies[7] / self.num_players
+
+    def string_to_display(self, this_player, all_players_7_counts):
+        # TODO: Docstring
+        string = ""
+        for roll, probability in self.probabilities.items():
+            if roll == 7:
+                for player in range(1, self.num_players + 1):
+                    if player == this_player:
+                        string += "\nPlayer " + str(player) + " 7: " + "{0:3d}".format(
+                            int(100 * probability)) + "% chance, " + str(
+                                all_players_7_counts[player])
+                    else:
+                        string += "\nPlayer " + str(
+                            player) + " 7:              " + str(all_players_7_counts[player])
+            elif roll < 10:
+                string += "\n         " + str(roll) + ": " + "{0:3d}".format(
+                    int(100 * probability)) + "% chance, " + str(self.frequencies[roll])
+            else:
+                # TODO: Remove this clause
+                string += "\n        " + str(roll) + ": " + "{0:3d}".format(
+                    int(100 * probability)) + "% chance, " + str(self.frequencies[roll])
+        return string
+
+
+class CatanDiceProbabilityDistribution():
+    # TODO: Docstring
+    # TODO: Maybe simplify by just having 1 probability distribution that just updates at the start
+    #  of each new player's turn
+    # Nothing to inherit that wouldn't have to get override
+
+    def __init__(self, num_players, aggressiveness):
+        # TODO: Docstring
+        # 1 probability distribution for each player
+        self.probability_distributions = {}
+        for player in range(1, num_players + 1):
+            self.probability_distributions[player] = CatanPlayerDiceProbabilityDistribution(
+                num_players=num_players, aggressiveness=aggressiveness)
+        self.curr_player = 1
+        self.num_players = num_players
+
+    def roll_and_update(self):
+        # TODO: Docstring
+        roll = self.probability_distributions[self.curr_player].roll()
+        if roll == 7:
+            for player in range(1, self.num_players + 1):
+                if player == self.curr_player:
+                    self.probability_distributions[player].update(roll)
+                else:
+                    self.probability_distributions[player].update_undo_only()
+        else:
+            for probability_distribution in self.probability_distributions.values():
+                probability_distribution.update(roll)
+        self.curr_player += 1
+        if self.curr_player > self.num_players:
+            self.curr_player = 1
+        return roll
+
+    def can_undo(self):
+        # TODO: Docstring
+        all_can_undo = self.probability_distributions[1].can_undo()
+        for player in range(2, self.num_players + 1):
+            if self.probability_distributions[player].can_undo() != all_can_undo:
+                raise ValueError(
+                    "Not all players agree on whether or not an undo can be done. " +
+                    "Should never reach this state.")
+        return all_can_undo
+
+    def undo(self):
+        # TODO: Docstring
+        for probability_distribution in self.probability_distributions.values():
+            probability_distribution.undo()
+        self.curr_player -= 1
+        if self.curr_player < 1:
+            self.curr_player = self.num_players
+
+    def can_redo(self):
+        # TODO: Docstring
+        all_can_redo = self.probability_distributions[1].can_redo()
+        for player in range(2, self.num_players + 1):
+            if self.probability_distributions[player].can_redo() != all_can_redo:
+                raise ValueError(
+                    "Not all players agree on whether or not a redo can be done. " +
+                    "Should never reach this state.")
+        return all_can_redo
+
+    def redo(self):
+        # TODO: Docstring
+        for probability_distribution in self.probability_distributions.values():
+            probability_distribution.redo()
+        self.curr_player += 1
+        if self.curr_player > self.num_players:
+            self.curr_player = 1
+
+    def get_curr_player(self):
+        return self.curr_player
+
+    def __str__(self):
+        all_players_7_counts = {
+            player: int(probability_distribution.seven_count()) for
+            player, probability_distribution in self.probability_distributions.items()}
+        return self.probability_distributions[
+            self.curr_player].string_to_display(
+            self.curr_player, all_players_7_counts)
+
+
+def run_catan(num_players, aggressiveness):
+    dice = CatanDiceProbabilityDistribution(num_players, aggressiveness)
+    while True:
+        print(dice)
+        prompt = f"Player {dice.get_curr_player()}'s turn. "
+        if dice.can_undo() and dice.can_redo():
+            prompt += "Press Enter to roll or type UNDO or REDO: "
+        elif dice.can_undo():
+            prompt += "Press Enter to roll or type UNDO: "
+        elif dice.can_redo():
+            prompt += "Press Enter to roll or type REDO: "
+        else:
+            prompt += "Press Enter to roll: "
+        user_input = input(prompt)
+        if user_input == "UNDO":
+            try:
+                dice.undo()
+                print("Successful undo")
+            except ValueError as e:
+                print(e)
+        elif user_input == "REDO":
+            try:
+                dice.redo()
+                print("Successful redo")
+            except ValueError as e:
+                print(e)
+        elif user_input == "":
+            print("Roll: ", dice.roll_and_update())
+        else:
+            print("Invalid input, no action done")
 
 
 def run_no_split_7s_catan(num_players, aggressiveness):
