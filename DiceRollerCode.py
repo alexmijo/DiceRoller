@@ -70,7 +70,7 @@ class DiceProbabilityDistribution:
         # TODO: See if there's some non-dumb way to make this not decrease any non-rolled
         #  probabilities. There probably is. The issue lies in just setting negatives to 0 and then
         #  renormalizing, rather than distributing that negative stuff out according to
-        #  underrepresentedness.
+        #  underrepresentedness. Actually nvm, have to figure out something else if I want that.
         # These will take up a lot of memory, but it's fine cause games aren't expected to last
         #  super long
         self.undo_states.append((self.probabilities.copy(), self.frequencies.copy()))
@@ -118,6 +118,7 @@ class DiceProbabilityDistribution:
             raise ValueError("Can't redo, no immediately recent undos to redo")
 
     def __str__(self):
+        # TODO: Docstring
         string = ""
         for roll, probability in self.probabilities.items():
             if roll < 10:
@@ -147,7 +148,7 @@ class CatanPlayerDiceProbabilityDistribution(DiceProbabilityDistribution):
             # TODO: See if there's some non-dumb way to make this not decrease any non-rolled
             #  probabilities. There probably is. The issue lies in just setting negatives to 0 and
             #  then renormalizing, rather than distributing that negative stuff out according to
-            #  underrepresentedness.
+            #  underrepresentedness. Actually nvm, have to figure out something else if I want that.
             # These will take up a lot of memory, but it's fine cause games aren't expected to last
             #  super long
             self.undo_states.append((self.probabilities.copy(), self.frequencies.copy()))
@@ -164,10 +165,12 @@ class CatanPlayerDiceProbabilityDistribution(DiceProbabilityDistribution):
             DiceProbabilityDistribution.update(self, new_roll)
 
     def update_undo_only(self):
+        # TODO: Docstring
         self.undo_states.append((self.probabilities.copy(), self.frequencies.copy()))
         self.redo_states = []
 
     def seven_count(self):
+        # TODO: Docstring
         return self.frequencies[7] / self.num_players
 
     def string_to_display(self, this_player, all_players_7_counts):
