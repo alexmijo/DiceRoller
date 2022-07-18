@@ -123,11 +123,11 @@ class DiceProbabilityDistribution:
         for roll, probability in self.probabilities.items():
             if roll < 10:
                 string += "\n " + str(roll) + ": " + "{0:3d}".format(
-                    int(100 * probability)) + "% chance, " + str(self.frequencies[roll])
+                    round(100 * probability)) + "% chance, " + str(self.frequencies[roll])
             else:
                 # TODO: Remove this clause
                 string += "\n" + str(roll) + ": " + "{0:3d}".format(
-                    int(100 * probability)) + "% chance, " + str(self.frequencies[roll])
+                    round(100 * probability)) + "% chance, " + str(self.frequencies[roll])
         return string
 
 
@@ -181,18 +181,18 @@ class CatanPlayerDiceProbabilityDistribution(DiceProbabilityDistribution):
                 for player in range(1, self.num_players + 1):
                     if player == this_player:
                         string += "\nPlayer " + str(player) + " 7: " + "{0:3d}".format(
-                            int(100 * probability)) + "% chance, " + str(
+                            round(100 * probability)) + "% chance, " + str(
                                 all_players_7_counts[player])
                     else:
                         string += "\nPlayer " + str(
                             player) + " 7:              " + str(all_players_7_counts[player])
             elif roll < 10:
                 string += "\n         " + str(roll) + ": " + "{0:3d}".format(
-                    int(100 * probability)) + "% chance, " + str(self.frequencies[roll])
+                    round(100 * probability)) + "% chance, " + str(self.frequencies[roll])
             else:
                 # TODO: Remove this clause
                 string += "\n        " + str(roll) + ": " + "{0:3d}".format(
-                    int(100 * probability)) + "% chance, " + str(self.frequencies[roll])
+                    round(100 * probability)) + "% chance, " + str(self.frequencies[roll])
         return string
 
 
