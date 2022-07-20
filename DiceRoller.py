@@ -278,10 +278,12 @@ class CatanDiceProbabilityDistribution():
             self.curr_player].string_to_display(
             self.curr_player, all_players_7_counts)
 
+
 # Escape character sequence for turning printed text red
 RED = "\033[0;31m"
 # Escape character sequence for turning printed text the shell's default color
 DEFAULT_COLOR = "\033[0m"
+
 
 def run_catan(num_players, aggressiveness):
     # TODO: Docstring
@@ -290,14 +292,18 @@ def run_catan(num_players, aggressiveness):
         print(dice)
         prompt = f"Player {dice.get_curr_player()}'s turn. "
         if dice.can_undo() and dice.can_redo():
-            prompt += "Press Enter to roll or type UNDO or REDO: "
+            prompt += "Press Enter to roll, Ctrl+c to quit, or type UNDO or REDO: "
         elif dice.can_undo():
-            prompt += "Press Enter to roll or type UNDO: "
+            prompt += "Press Enter to roll, Ctrl+c to quit, or type UNDO: "
         elif dice.can_redo():
-            prompt += "Press Enter to roll or type REDO: "
+            prompt += "Press Enter to roll, Ctrl+c to quit, or type REDO: "
         else:
-            prompt += "Press Enter to roll: "
-        user_input = input(prompt)
+            prompt += "Press Enter to roll or Ctrl+c to quit: "
+        try:
+            user_input = input(prompt)
+        except KeyboardInterrupt:
+            print()
+            break
         if user_input == "UNDO":
             try:
                 dice.undo()
@@ -328,14 +334,18 @@ def run_no_split_7s_catan(num_players, aggressiveness):
         print(dice)
         prompt = f"Player {player}'s turn. "
         if dice.can_undo() and dice.can_redo():
-            prompt += "Press Enter to roll or type UNDO or REDO: "
+            prompt += "Press Enter to roll, Ctrl+c to quit, or type UNDO or REDO: "
         elif dice.can_undo():
-            prompt += "Press Enter to roll or type UNDO: "
+            prompt += "Press Enter to roll, Ctrl+c to quit, or type UNDO: "
         elif dice.can_redo():
-            prompt += "Press Enter to roll or type REDO: "
+            prompt += "Press Enter to roll, Ctrl+c to quit, or type REDO: "
         else:
-            prompt += "Press Enter to roll: "
-        user_input = input(prompt)
+            prompt += "Press Enter to roll or Ctrl+c to quit: "
+        try:
+            user_input = input(prompt)
+        except KeyboardInterrupt:
+            print()
+            break
         if user_input == "UNDO":
             try:
                 dice.undo()
@@ -357,7 +367,7 @@ def run_no_split_7s_catan(num_players, aggressiveness):
             print("Invalid input, no action done")
 
 
-def old_main():
+def old_run_catan():
     # TODO: Docstring or maybe remove
     mostRecentRoll = 0
     rolls = {2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0}
@@ -457,6 +467,7 @@ def old_main():
                         print(
                             str(roll) + ": " + "{0:3d}".format(int(100 * biasedChances[roll])) +
                             "% chance, " + str(rolls[roll]))
+
 
 if __name__ == "__main__":
     # aggressiveness=15 seems good for 2 players at least
