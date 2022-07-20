@@ -1,4 +1,4 @@
-import DiceRollerCode
+import DiceRoller
 
 # Number of tests run
 num_run = 0
@@ -19,7 +19,7 @@ def dice_sum_probability_unit_test():
     expecteds = {2: 1/36, 3: 2/36, 4: 3/36, 5: 4/36, 6: 5/36,
                  7: 6/36, 8: 5/36, 9: 4/36, 10: 3/36, 11: 2/36, 12: 1/36}
     for roll in range(2, 13):
-        actual = DiceRollerCode.dice_sum_probability(roll, 2, 6)
+        actual = DiceRoller.dice_sum_probability(roll, 2, 6)
         if (actual != expecteds[roll]):
             print(f"dice_sum_probability_unit_test: dice_sum_probability({roll}, 2, 6)")
             print("Expected:", expecteds[roll], "Actual:", actual)
@@ -28,7 +28,7 @@ def dice_sum_probability_unit_test():
     expecteds = {1: 1/10, 2: 1/10, 3: 1/10, 4: 1/10, 5: 1/10,
                  6: 1/10, 7: 1/10, 8: 1/10, 9: 1/10, 10: 1/10}
     for roll in range(1, 11):
-        actual = DiceRollerCode.dice_sum_probability(roll, 1, 10)
+        actual = DiceRoller.dice_sum_probability(roll, 1, 10)
         if (actual != expecteds[roll]):
             print(f"dice_sum_probability_unit_test: dice_sum_probability({roll}, 1, 10)")
             print("Expected:", expecteds[roll], "Actual:", actual)
@@ -50,7 +50,7 @@ def for_finding_optimal_aggressiveness_no_split_7s(aggressiveness):
     even particularly plausible to have a 100% chance roll at the given level of aggressiveness.
     Used for no split 7s Catan.
     """
-    dice = DiceRollerCode.DiceProbabilityDistribution(
+    dice = DiceRoller.DiceProbabilityDistribution(
         num_dice=2, num_sides=6, aggressiveness=aggressiveness)
     dice.frequencies = {2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 5, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1}
     dice.frequencies[2] -= 1
@@ -63,7 +63,7 @@ def for_finding_optimal_aggressiveness(aggressiveness):
     even particularly plausible to have a 100% chance roll at the given level of aggressiveness.
     Used for split 7s Catan (the normal Catan). Uses 2 players.
     """
-    dice = DiceRollerCode.CatanDiceProbabilityDistribution(
+    dice = DiceRoller.CatanDiceProbabilityDistribution(
         num_players=2, aggressiveness=aggressiveness)
     dice.probability_distributions[1].frequencies = {2: 1, 3: 2, 4: 3, 5: 4, 6: 3, 7: 6, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1}
     dice.probability_distributions[1].frequencies[2] -= 1
