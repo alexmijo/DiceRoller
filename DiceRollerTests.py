@@ -36,9 +36,67 @@ def dice_sum_probability_unit_test():
     if (failed):
         num_failed += 1
 
+
 dice_sum_probability_unit_test()
 
 if (num_failed == 0):
     print(num_run, "tests run. All tests passed.")
 else:
     print(num_run, "tests run.", num_failed, "tests failed.")
+
+
+def for_finding_optimal_aggressiveness_no_split_7s(aggressiveness):
+    """ Constructs a situation very likely to give a 100% chance of rolling a 7, if it is actually
+    even particularly plausible to have a 100% chance roll at the given level of aggressiveness.
+    Used for no split 7s Catan.
+    """
+    dice = DiceRollerCode.DiceProbabilityDistribution(
+        num_dice=2, num_sides=6, aggressiveness=aggressiveness)
+    dice.frequencies = {2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 5, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1}
+    dice.frequencies[2] -= 1
+    dice.update(2)
+    print(dice)
+
+
+def for_finding_optimal_aggressiveness(aggressiveness):
+    """ Constructs a situation very likely to give a 100% chance of rolling a 6, if it is actually
+    even particularly plausible to have a 100% chance roll at the given level of aggressiveness.
+    Used for split 7s Catan (the normal Catan). Uses 2 players.
+    """
+    dice = DiceRollerCode.CatanDiceProbabilityDistribution(
+        num_players=2, aggressiveness=aggressiveness)
+    dice.probability_distributions[1].frequencies = {2: 1, 3: 2, 4: 3, 5: 4, 6: 3, 7: 6, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1}
+    dice.probability_distributions[1].frequencies[2] -= 1
+    dice.probability_distributions[1].update(2)
+    dice.probability_distributions[2].frequencies = {2: 1, 3: 2, 4: 3, 5: 4, 6: 3, 7: 6, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1}
+    dice.probability_distributions[2].frequencies[2] -= 1
+    dice.probability_distributions[2].update(2)
+    print(dice)
+
+# 100 percent chance of a 7
+# for_finding_optimal_aggressiveness_no_split_7s(35)
+# 98 percent chance of a 7
+# for_finding_optimal_aggressiveness_no_split_7s(34)
+# 95 percent chance of a 7
+# for_finding_optimal_aggressiveness_no_split_7s(33)
+# 93 percent chance of a 7
+# for_finding_optimal_aggressiveness_no_split_7s(32)
+# 90 percent chance of a 7
+# for_finding_optimal_aggressiveness_no_split_7s(31)
+# 88 percent chance of a 7
+# for_finding_optimal_aggressiveness_no_split_7s(30)
+# 86 percent chance of a 7
+# for_finding_optimal_aggressiveness_no_split_7s(30)
+# 98 percent chance of a 7 when 4 sevens have already been rolled (instead of 5)
+# for_finding_optimal_aggressiveness_no_split_7s(16.5)
+
+# 100 percent chance of a 6
+# for_finding_optimal_aggressiveness(18)
+# 95 percent chance of a 6
+# for_finding_optimal_aggressiveness(17)
+# 90 percent chance of a 6
+# for_finding_optimal_aggressiveness(16)
+# 90 percent chance of a 6
+# for_finding_optimal_aggressiveness(15)
+# 85 percent chance of a 6
+# for_finding_optimal_aggressiveness(14)
