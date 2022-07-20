@@ -199,8 +199,8 @@ class CatanPlayerDiceProbabilityDistribution(DiceProbabilityDistribution):
 class CatanDiceProbabilityDistribution():
     # TODO: Docstring
     # TODO: Maybe simplify by just having 1 probability distribution that just updates at the start
-    #  of each new player's turn
-    # Nothing to inherit that wouldn't have to get override
+    #  of each new player's turn. Might be able to inherit then.
+    # Nothing to inherit that wouldn't have to get overridden
 
     def __init__(self, num_players, aggressiveness):
         # TODO: Docstring
@@ -266,9 +266,11 @@ class CatanDiceProbabilityDistribution():
             self.curr_player = 1
 
     def get_curr_player(self):
+        # TODO: Docstring
         return self.curr_player
 
     def __str__(self):
+        # TODO: Docstring
         all_players_7_counts = {
             player: int(probability_distribution.seven_count()) for
             player, probability_distribution in self.probability_distributions.items()}
@@ -276,8 +278,13 @@ class CatanDiceProbabilityDistribution():
             self.curr_player].string_to_display(
             self.curr_player, all_players_7_counts)
 
+# Escape character sequence for turning printed text red
+RED = "\033[0;31m"
+# Escape character sequence for turning printed text the shell's default color
+DEFAULT_COLOR = "\033[0m"
 
 def run_catan(num_players, aggressiveness):
+    # TODO: Docstring
     dice = CatanDiceProbabilityDistribution(num_players, aggressiveness)
     while True:
         print(dice)
@@ -304,7 +311,7 @@ def run_catan(num_players, aggressiveness):
             except ValueError as e:
                 print(e)
         elif user_input == "":
-            print("Roll: ", dice.roll_and_update())
+            print("Roll:", RED + str(dice.roll_and_update()) + DEFAULT_COLOR)
         else:
             print("Invalid input, no action done")
 
@@ -344,13 +351,14 @@ def run_no_split_7s_catan(num_players, aggressiveness):
             except ValueError as e:
                 print(e)
         elif user_input == "":
-            print("Roll: ", dice.roll_and_update())
+            print("Roll: ", RED + str(dice.roll_and_update()) + DEFAULT_COLOR)
             player += 1
         else:
             print("Invalid input, no action done")
 
 
 def old_main():
+    # TODO: Docstring or maybe remove
     mostRecentRoll = 0
     rolls = {2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0}
     chances = {2: 1.0/36, 3: 2.0/36, 4: 3.0/36, 5: 4.0/36, 6: 5.0/36,
