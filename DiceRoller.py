@@ -1,6 +1,11 @@
 import random
 import math
 
+# Set to True in order to use an experimental (and IMO not as good) way of adhusting probability
+#  such that probability is guaranteed (I think) to increase monotonically with increasing
+#  underrepresentedness
+use_multiplicative_adjusting = False
+
 
 def dice_sum_probability(sum, num_dice, num_sides):
     """ Returns the probability of getting <sum> points as the sum of rolling <num_dice> dice, each
@@ -60,15 +65,30 @@ class GamblersFallacyDice:
 
     def update_probabilities(self):
         # TODO: Docstring
-        if self.frequencies == self.all_zeros_frequencies:
-            self.probabilities = self.normal_probabilities.copy()
+        if use_multiplicative_adjusting:
+            if self.frequencies == self.all_zeros_frequencies:
+                self.probabilities = self.normal_probabilities.copy()
+            else:
+                for roll in self.frequencies:
+                    self.frequencies[roll] += self.normal_probabilities[roll] * 36
+                for roll, fraction_of_rolls in normalized(self.frequencies).items():
+                    deviation_from_expected = fraction_of_rolls / self.normal_probabilities[roll]
+                    self.probabilities[roll] = self.normal_probabilities[roll] / \
+                        (deviation_from_expected ** self.aggressiveness)
+                for roll in self.frequencies:
+                    self.frequencies[roll] = round(
+                        self.frequencies[roll] - self.normal_probabilities[roll] * 36)
+                normalize(self.probabilities)
         else:
-            for roll, fraction_of_rolls in normalized(self.frequencies).items():
-                deviation_from_expected = fraction_of_rolls - self.normal_probabilities[roll]
-                self.probabilities[roll] = self.normal_probabilities[roll] - \
-                    self.aggressiveness * deviation_from_expected
-            set_negative_values_to_0(self.probabilities)
-            normalize(self.probabilities)
+            if self.frequencies == self.all_zeros_frequencies:
+                self.probabilities = self.normal_probabilities.copy()
+            else:
+                for roll, fraction_of_rolls in normalized(self.frequencies).items():
+                    deviation_from_expected = fraction_of_rolls - self.normal_probabilities[roll]
+                    self.probabilities[roll] = self.normal_probabilities[roll] - \
+                        self.aggressiveness * deviation_from_expected
+                set_negative_values_to_0(self.probabilities)
+                normalize(self.probabilities)
 
     def roll_without_updating_frequencies(self):
         # TODO: Docstring
