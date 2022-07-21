@@ -24,7 +24,11 @@ def dice_sum_probability(sum, num_dice, num_sides):
 
 
 def normalize(distribution):
-    # TODO: Docstring
+    """ Mutates the passed in distribution to make the sum of all its values equal 1. The ratios
+    between the values stay the same. Bassically, it just divides all values by the sum of the
+    values.
+    <distribution> must be a dictionary containing all integer values.
+    """
     sum = 0
     for value in distribution.values():
         sum += value
