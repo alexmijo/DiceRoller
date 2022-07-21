@@ -84,7 +84,7 @@ class GamblersFallacyDice:
 
     def roll(self):
         # TODO: Docstring
-        self.undo_states.append(self.frequencies)
+        self.undo_states.append(self.frequencies.copy())
         self.redo_states = []
         roll = self.roll_without_updating_frequencies()
         self.frequencies[roll] += 1
@@ -99,7 +99,7 @@ class GamblersFallacyDice:
     def undo(self):
         # TODO: Docstring
         if self.can_undo():
-            self.redo_states.append(self.frequencies)
+            self.redo_states.append(self.frequencies.copy())
             self.frequencies = self.undo_states.pop()
         else:
             raise ValueError("Can't undo, no previous state to return to")
@@ -113,7 +113,7 @@ class GamblersFallacyDice:
     def redo(self):
         # TODO: Docstring
         if self.can_redo():
-            self.undo_states.append(self.frequencies)
+            self.undo_states.append(self.frequencies.copy())
             self.frequencies = self.redo_states.pop()
         else:
             raise ValueError("Can't redo, no immediately recent undos to redo")
@@ -142,8 +142,12 @@ class CatanDice(GamblersFallacyDice):
         self.num_players = num_players
         self.curr_player = 1
         self.players_seven_counts = {player: 0 for player in range(1, num_players + 1)}
+        self.undo_sevens_states = []
+        self.redo_sevens_states = []
 
     def roll(self):
+        self.undo_sevens_states.append(self.players_seven_counts.copy())
+        self.redo_sevens_states = []
         self.frequencies[7] = self.players_seven_counts[self.curr_player] * self.num_players
         roll = GamblersFallacyDice.roll(self)
         if roll == 7:
@@ -157,6 +161,8 @@ class CatanDice(GamblersFallacyDice):
     def undo(self):
         # TODO: Docstring
         GamblersFallacyDice.undo(self)
+        self.redo_sevens_states.append(self.players_seven_counts.copy())
+        self.players_seven_counts = self.undo_sevens_states.pop()
         self.curr_player -= 1
         if self.curr_player < 1:
             self.curr_player = self.num_players
@@ -164,6 +170,8 @@ class CatanDice(GamblersFallacyDice):
     def redo(self):
         # TODO: Docstring
         GamblersFallacyDice.redo(self)
+        self.undo_sevens_states.append(self.players_seven_counts.copy())
+        self.players_seven_counts = self.redo_sevens_states.pop()
         self.curr_player += 1
         if self.curr_player > self.num_players:
             self.curr_player = 1
