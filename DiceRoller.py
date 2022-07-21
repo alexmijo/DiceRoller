@@ -279,9 +279,9 @@ class CatanDiceProbabilityDistribution():
             self.curr_player, all_players_7_counts)
 
 
-# Escape character sequence for turning printed text red
-RED = "\033[0;31m"
-# Escape character sequence for turning printed text the shell's default color
+# Escape character sequence for turning printed text bold and yellow
+BOLD_YELLOW = "\033[1;33m"
+# Escape character sequence for turning printed text the shell's default color (and style)
 DEFAULT_COLOR = "\033[0m"
 
 
@@ -317,7 +317,7 @@ def run_catan(num_players, aggressiveness):
             except ValueError as e:
                 print(e)
         elif user_input == "":
-            print("Roll:", RED + str(dice.roll_and_update()) + DEFAULT_COLOR)
+            print("Roll:", BOLD_YELLOW + str(dice.roll_and_update()) + DEFAULT_COLOR)
         else:
             print("Invalid input, no action done")
 
@@ -361,7 +361,7 @@ def run_no_split_7s_catan(num_players, aggressiveness):
             except ValueError as e:
                 print(e)
         elif user_input == "":
-            print("Roll: ", RED + str(dice.roll_and_update()) + DEFAULT_COLOR)
+            print("Roll: ", BOLD_YELLOW + str(dice.roll_and_update()) + DEFAULT_COLOR)
             player += 1
         else:
             print("Invalid input, no action done")
