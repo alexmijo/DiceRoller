@@ -129,8 +129,8 @@ class GamblersFallacyDice:
                 for roll in self.frequencies:
                     # Undos the solution to the roll's frequency being 0 problem above, returning
                     #  self.frequencies back to its original value.
-                    self.frequencies[roll] = round(self.frequencies[roll] - \
-                        self.normal_probabilities[roll]*self.num_individual_dice_roll_permutations)
+                    self.frequencies[roll] = round(
+                        self.frequencies[roll] - self.normal_probabilities[roll]*self.num_individual_dice_roll_permutations)
                 normalize(self.probabilities)
         else:
             # My preferred way of adjusting probability. Probability isn't guaranteed to increase
@@ -220,13 +220,8 @@ class GamblersFallacyDice:
         self.update_probabilities()
         string = ""
         for roll, probability in self.probabilities.items():
-            if roll < 10:
-                string += "\n " + str(roll) + ": " + "{0:3d}".format(
-                    round(100 * probability)) + "% chance, " + str(self.frequencies[roll])
-            else:
-                # TODO: Remove this clause
-                string += "\n" + str(roll) + ": " + "{0:3d}".format(
-                    round(100 * probability)) + "% chance, " + str(self.frequencies[roll])
+            string += "\n{0:2d}: {1:3d}% chance, {2}".format(
+                roll, round(100 * probability), self.frequencies[roll])
         return string
 
 
@@ -251,7 +246,7 @@ class CatanDice(GamblersFallacyDice):
         # The player who's turn it is to roll
         self.curr_player = 1
         # Maps each player (integer 1 through num_players) to the number of times that player has
-        #  rolled a 7. 
+        #  rolled a 7.
         self.players_seven_counts = {player: 0 for player in range(1, num_players + 1)}
         # We use the methods in GamblersFallacyDice to keep track of the previous states of
         #  self.frequencies, so the only additional work we need to do is keeping track of the
@@ -325,17 +320,13 @@ class CatanDice(GamblersFallacyDice):
                 #  self.frequencies.
                 for player, seven_count in sorted(self.players_seven_counts.items()):
                     if player == self.curr_player:
-                        string += "\nPlayer " + str(player) + " 7: " + "{0:3d}".format(
-                            round(100 * probability)) + "% chance, " + str(seven_count)
+                        string += "\nPlayer {0} 7: {1:3d}% chance, {2}".format(
+                            player, round(100 * probability), seven_count)
                     else:
-                        string += "\nPlayer " + str(player) + " 7:              " + str(seven_count)
-            elif roll < 10:
-                string += "\n         " + str(roll) + ": " + "{0:3d}".format(
-                    round(100 * probability)) + "% chance, " + str(self.frequencies[roll])
+                        string += "\nPlayer {0} 7:              {1}".format(player, seven_count)
             else:
-                # TODO: Remove this clause
-                string += "\n        " + str(roll) + ": " + "{0:3d}".format(
-                    round(100 * probability)) + "% chance, " + str(self.frequencies[roll])
+                string += "\n        {0:2d}: {1:3d}% chance, {2}".format(
+                    roll, round(100 * probability), self.frequencies[roll])
         return string
 
 
