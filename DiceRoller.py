@@ -58,14 +58,32 @@ def set_negative_values_to_0(distribution):
 
 
 class GamblersFallacyDice:
-    #TODO: Docstring
+    """ Represents dice which actually do exhibit the "gambler's fallacy". So, if an 8 hasn't been
+    rolled in a long time, then an 8 actually is overdue and therefore will have a higher chance of
+    being rolled than it would have otherwise. Essentially, if a roll has been underrepresented so
+    far (it has been rolled fewer times than the expected value of how many times it'd be rolled in
+    the amount of rolls that have occurred so far) its probability increases, and if a roll has been
+    overrepresented so far its probability decreases. This has the effect of trending towards the
+    long term average distribution of normal dice's rolls faster than normal dice would (but the
+    distribution being trended to is the same). Can represent an arbitrary number of dice with an
+    arbitrary number of faces, and a roll will be the sum of the rolls of all the dice.
+    """
 
     def __init__(self, num_dice, num_sides, aggressiveness):
-        # TODO: Docstring
+        """ Initializes an instance representing <num_dice> dice each with <num_sides> sides, which
+        adjusts the probabilities to favor underrepresented rolls (and disfavor overrepresented
+        rolls) with the passed in level of aggressiveness.
+        <num_dice> and <num_sides> must both be positive integers.
+        <aggressiveness> must be a non-negative number. An aggressiveness of 0 will result in normal
+        dice which don't adjust probability according to the rolls that have occurred so far. The
+        higher the aggressiveness, the more probabilities will be adjusted from their normal values,
+        and the faster the normal long term average distribution of rolls will be trended towards.
+        """
         self.aggressiveness = aggressiveness
         # Maps each possible roll to the probability of getting that roll on real, normal dice
         self.normal_probabilities = {roll: dice_sum_probability(
             roll, num_dice, num_sides) for roll in range(num_dice, num_dice * num_sides + 1)}
+        # Initial probabilities will be those of normal dice
         self.probabilities = self.normal_probabilities.copy()
         # Maps each possible roll to the number of times it has been rolled so far on these dice
         self.frequencies = {roll: 0 for roll in range(num_dice, num_dice * num_sides + 1)}
@@ -73,24 +91,53 @@ class GamblersFallacyDice:
         # Previous self.frequencies maps to return to with undo/redo
         self.undo_states = []
         self.redo_states = []
+        if use_multiplicative_adjusting:
+            # Needed for solving the problem of when a roll's frequency is 0
+            self.num_individual_dice_roll_permutations = num_sides ** num_dice
 
     def update_probabilities(self):
-        # TODO: Docstring
+        """ Updates self.probabilities according to self.frequencies. Underrepresented rolls will
+        tend to have higher probability than on normal dice, and overrepresented rolls will tend to
+        have lower probability than on normal dice. The sorted order of the adjustments of
+        probabilities will be guaranteed to be the same as the sorted order of underrepresentedness,
+        i.e., if roll A is more underrepresented than roll B, than rolls A's probability adjustment
+        (either multiplicative or additive, depending on the value of use_multiplicative_adjusting)
+        will be greater than that of roll B.
+        """
         if use_multiplicative_adjusting:
+            # This is an experimental way of adhusting probability such that probability is
+            #  guaranteed (I think) to increase monotonically with increasing underrepresentedness.
+            #  IMO this isn't as good as the other, additive way of adjusting. It's called
+            #  multiplicative because the normal probabilities are multiplied by a value determined
+            #  by underrepresentedness.
             if self.frequencies == self.all_zeros_frequencies:
                 self.probabilities = self.normal_probabilities.copy()
             else:
                 for roll in self.frequencies:
-                    self.frequencies[roll] += self.normal_probabilities[roll] * 36
+                    # This solves the problem of when a roll's frequency is 0 (so the ratio of the
+                    #  roll's frequency to its expected frequency is 0, which can't be used to
+                    #  adjust probability since it'd be a divide by 0 error).
+                    self.frequencies[roll] += self.normal_probabilities[roll] * \
+                        self.num_individual_dice_roll_permutations
                 for roll, fraction_of_rolls in normalized(self.frequencies).items():
                     deviation_from_expected = fraction_of_rolls / self.normal_probabilities[roll]
+                    # TODO: See if using self.aggressiveness (or its inverse, depending on if
+                    #  deviation_from_expected is > or < 1) in a multiplicative way makes this
+                    #  method work better.
                     self.probabilities[roll] = self.normal_probabilities[roll] / \
                         (deviation_from_expected ** self.aggressiveness)
                 for roll in self.frequencies:
-                    self.frequencies[roll] = round(
-                        self.frequencies[roll] - self.normal_probabilities[roll] * 36)
+                    # Undos the solution to the roll's frequency being 0 problem above, returning
+                    #  self.frequencies back to its original value.
+                    self.frequencies[roll] = round(self.frequencies[roll] - \
+                        self.normal_probabilities[roll]*self.num_individual_dice_roll_permutations)
                 normalize(self.probabilities)
         else:
+            # My preferred way of adjusting probability. Probability isn't guaranteed to increase
+            #  monotonically with increasing underrepresentedness using this method, but that's
+            #  still pretty close to being the case and I don't think it's a big deal at all that
+            #  it's not perfectly the case. It's called additive because a value determined by
+            #  underrepresentedness is added to the normal probabilities.
             if self.frequencies == self.all_zeros_frequencies:
                 self.probabilities = self.normal_probabilities.copy()
             else:
@@ -98,11 +145,16 @@ class GamblersFallacyDice:
                     deviation_from_expected = fraction_of_rolls - self.normal_probabilities[roll]
                     self.probabilities[roll] = self.normal_probabilities[roll] - \
                         self.aggressiveness * deviation_from_expected
+                # I think that this (setting negative values to 0 and then normalizing) is why
+                #  probability doesn't always increase monotonically with increasing
+                #  underrepresentedness.
                 set_negative_values_to_0(self.probabilities)
                 normalize(self.probabilities)
 
     def roll_without_updating_frequencies(self):
-        # TODO: Docstring
+        """ Returns a roll of these dice but the dice won't remember that this roll occurred, so
+        the probabilities won't get adjusted.
+        """
         self.update_probabilities()
         rand = random.random()
         cumulative = 0
@@ -114,7 +166,11 @@ class GamblersFallacyDice:
         return roll
 
     def roll(self):
-        # TODO: Docstring
+        """ Returns a roll of these dice and remembers that this roll occurred (which will cause
+        probabilities to be changed).
+        """
+        # Since probabilities depend only on current frequencies, the state of the dice can be
+        #  represented solely by self.frequencies.
         self.undo_states.append(self.frequencies.copy())
         self.redo_states = []
         roll = self.roll_without_updating_frequencies()
@@ -122,13 +178,16 @@ class GamblersFallacyDice:
         return roll
 
     def can_undo(self):
-        # TODO: Docstring
+        """ Returns True if there is a previous state for these dice to return to with an undo,
+        False otherwise.
+        """
         if self.undo_states:
             return True
         return False
 
     def undo(self):
-        # TODO: Docstring
+        """ Undoes the effects of the previous roll.
+        """
         if self.can_undo():
             self.redo_states.append(self.frequencies.copy())
             self.frequencies = self.undo_states.pop()
@@ -136,13 +195,17 @@ class GamblersFallacyDice:
             raise ValueError("Can't undo, no previous state to return to")
 
     def can_redo(self):
-        # TODO: Docstring
+        """ Returns True if the last thing to be done with these dice was an undo (and we therefore
+        are able to do a redo), False otherwise.
+        """
         if self.redo_states:
             return True
         return False
 
     def redo(self):
-        # TODO: Docstring
+        """ Redoes the effects of the previous roll which was just undone. Can be called multiple
+        times in a row to redo multiple consecutive undos.
+        """
         if self.can_redo():
             self.undo_states.append(self.frequencies.copy())
             self.frequencies = self.redo_states.pop()
@@ -150,7 +213,10 @@ class GamblersFallacyDice:
             raise ValueError("Can't redo, no immediately recent undos to redo")
 
     def __str__(self):
-        # TODO: Docstring
+        """ Returns a well formatted string which displays the current (adjusted) probabilities of
+        rolling each possible roll and the number of times each roll has already occurred.
+        Probabilities are rounded to the nearest percent.
+        """
         self.update_probabilities()
         string = ""
         for roll, probability in self.probabilities.items():
@@ -165,7 +231,8 @@ class GamblersFallacyDice:
 
 
 class CatanDice(GamblersFallacyDice):
-    # TODO: Docstring
+    """ Represents GamblersFallacyDice which distinguish between 7s rolled by 
+    """
 
     def __init__(self, num_players, aggressiveness):
         # TODO: Docstring
