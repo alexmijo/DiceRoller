@@ -253,6 +253,9 @@ class CatanDice(GamblersFallacyDice):
         # Maps each player (integer 1 through num_players) to the number of times that player has
         #  rolled a 7. 
         self.players_seven_counts = {player: 0 for player in range(1, num_players + 1)}
+        # We use the methods in GamblersFallacyDice to keep track of the previous states of
+        #  self.frequencies, so the only additional work we need to do is keeping track of the
+        #  previous states of self.players_seven_counts.
         self.undo_sevens_states = []
         self.redo_sevens_states = []
 
@@ -263,11 +266,15 @@ class CatanDice(GamblersFallacyDice):
         """
         self.undo_sevens_states.append(self.players_seven_counts.copy())
         self.redo_sevens_states = []
+        # For purposes of determining probabilities the number of 7s rolled so far is taken to be
+        #  the number of players multiplied by the number of times the current player has rolled a 7
+        #  so far.
         self.frequencies[7] = self.players_seven_counts[self.curr_player] * self.num_players
         roll = GamblersFallacyDice.roll(self)
         if roll == 7:
             self.players_seven_counts[self.curr_player] += 1
-            self.frequencies[7] = self.players_seven_counts[self.curr_player] * self.num_players
+            # It's not necessary to update self.frequencies[7] since that is set at the beggining
+            #  of each call to roll(), and is unused by __str__().
         self.curr_player += 1
         if self.curr_player > self.num_players:
             self.curr_player = 1
@@ -276,7 +283,9 @@ class CatanDice(GamblersFallacyDice):
     def undo(self):
         """ Undoes the effects of the previous roll.
         """
+        # GamblersFallacyDice.undo() deals with the state of self.frequencies.
         GamblersFallacyDice.undo(self)
+        # We also need to deal with the states of self.players_seven_counts and self.curr_player.
         self.redo_sevens_states.append(self.players_seven_counts.copy())
         self.players_seven_counts = self.undo_sevens_states.pop()
         self.curr_player -= 1
@@ -287,7 +296,9 @@ class CatanDice(GamblersFallacyDice):
         """ Redoes the effects of the previous roll which was just undone. Can be called multiple
         times in a row to redo multiple consecutive undos.
         """
+        # GamblersFallacyDice.redo() deals with the state of self.frequencies.
         GamblersFallacyDice.redo(self)
+        # We also need to deal with the states of self.players_seven_counts and self.curr_player.
         self.undo_sevens_states.append(self.players_seven_counts.copy())
         self.players_seven_counts = self.redo_sevens_states.pop()
         self.curr_player += 1
@@ -302,11 +313,16 @@ class CatanDice(GamblersFallacyDice):
         displayed (since it's impossible for any players other than the current player to roll a 7
         during the current player's turn).
         """
+        # For purposes of determining probabilities the number of 7s rolled so far is taken to be
+        #  the number of players multiplied by the number of times the current player has rolled a 7
+        #  so far.
         self.frequencies[7] = self.players_seven_counts[self.curr_player] * self.num_players
         self.update_probabilities()
         string = ""
         for roll, probability in self.probabilities.items():
             if roll == 7:
+                # For 7s, the frequencies will be in self.players_seven_counts rather than in
+                #  self.frequencies.
                 for player, seven_count in sorted(self.players_seven_counts.items()):
                     if player == self.curr_player:
                         string += "\nPlayer " + str(player) + " 7: " + "{0:3d}".format(
