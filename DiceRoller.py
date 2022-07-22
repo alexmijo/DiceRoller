@@ -340,7 +340,12 @@ YELLOW = "\033[1;33m"
 
 
 def run_catan(num_players, aggressiveness):
-    # TODO: Docstring
+    """ Runs a game of catan with <num_players> players using CatanDice with the passed in
+    aggressiveness (see GamblersFallacyDice.__init__()'s docstring for an explanation of
+    aggressiveness). Counts (and adjusts probabilities for) each player's 7s seperately.
+    <num_player> must be a positive integer.
+    <aggressiveness> must be a non-negative number.
+    """
     dice = CatanDice(num_players, aggressiveness)
     while True:
         print(dice)
@@ -371,6 +376,7 @@ def run_catan(num_players, aggressiveness):
             except ValueError as e:
                 print(e)
         elif user_input == "":
+            # Colors draw the eye to the roll, which otherwise might be lost in a sea of text
             print(RED_BACKGROUND + "Roll:" + DEFAULT_COLOR,
                   YELLOW + str(dice.roll()) + DEFAULT_COLOR)
         else:
@@ -378,10 +384,17 @@ def run_catan(num_players, aggressiveness):
 
 
 def run_no_split_7s_catan(num_players, aggressiveness):
-    # TODO: Docstring
+    """ Runs a game of catan with <num_players> players using GamblersFallacyDice with the passed in
+    aggressiveness (see GamblersFallacyDice.__init__()'s docstring for an explanation of
+    aggressiveness). Doesn't count different players' 7s seperately, so it's reccomended to use
+    run_catan() instead.
+    <num_player> must be a positive integer.
+    <aggressiveness> must be a non-negative number.
+    """
     dice = GamblersFallacyDice(num_dice=2, num_sides=6, aggressiveness=aggressiveness)
+    # Must keep track of which player's turn it is in this function since GamblersFallacyDice
+    #  doesn't do that, unlike CatanDice.
     player = 1
-    # Just keyboard interrupt to stop
     while True:
         player = player % num_players
         if player == 0:
@@ -416,6 +429,7 @@ def run_no_split_7s_catan(num_players, aggressiveness):
             except ValueError as e:
                 print(e)
         elif user_input == "":
+            # Colors draw the eye to the roll, which otherwise might be lost in a sea of text
             print(RED_BACKGROUND + "Roll: " + DEFAULT_COLOR,
                   YELLOW + str(dice.roll()) + DEFAULT_COLOR)
             player += 1
@@ -424,7 +438,9 @@ def run_no_split_7s_catan(num_players, aggressiveness):
 
 
 def old_run_catan():
-    # TODO: Docstring or maybe remove
+    """ The original version of this program, before I tried to make the code nicer and improve the
+    qualities of the probability adjustment.
+    """
     mostRecentRoll = 0
     rolls = {2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0}
     chances = {2: 1.0/36, 3: 2.0/36, 4: 3.0/36, 5: 4.0/36, 6: 5.0/36,
@@ -435,7 +451,8 @@ def old_run_catan():
 
     # Program must be stopped with a keyboard interrupt
     while True:
-        # TODO: Fix bug for double+ UNDOs
+        # This version of the program actually won't let the user do double UNDOs, despite this
+        #  prompt saying otherwise.
         if isPlayer1:
             prompt = "Player 1, press Enter to roll or type UNDO: "
         else:
