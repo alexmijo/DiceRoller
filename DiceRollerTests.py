@@ -1,7 +1,7 @@
 import DiceRoller
 
-# TODO: Figure out some Python testing utility to use in the future, instead of doing this stuff
-#  manually. Actually, probably do that before I finish implementing the rest of these tests
+# TODO: Figure out some Python testing utility to use in the future, instead of doing a lot of this
+#  stuff manually. Actually, probably do that before I finish implementing the rest of these tests
 #  manually, and then just use that for all these tests. Look for something like JUnit but for
 #  Python.
 
