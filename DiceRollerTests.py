@@ -2,7 +2,8 @@ import DiceRoller
 
 # TODO: Figure out some Python testing utility to use in the future, instead of doing this stuff
 #  manually. Actually, probably do that before I finish implementing the rest of these tests
-#  manually, and then just use that for all these tests.
+#  manually, and then just use that for all these tests. Look for something like JUnit but for
+#  Python.
 
 # Maximum difference between 2 floating point numbers for them to be considered equal
 FLOAT_THRESHOLD = 0.00001
