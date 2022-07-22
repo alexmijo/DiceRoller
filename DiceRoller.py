@@ -27,7 +27,7 @@ def normalize(distribution):
     """ Mutates the passed in distribution to make the sum of all its values equal 1. The ratios
     between the values stay the same. Bassically, it just divides all values by the sum of the
     values.
-    <distribution> must be a dictionary containing all integer values.
+    <distribution> must be a dictionary containing all numerical values.
     """
     sum = 0
     for value in distribution.values():
@@ -37,14 +37,21 @@ def normalize(distribution):
 
 
 def normalized(distribution):
-    # TODO: Docstring
+    """ Returns a normalized copy of the passed in distribution, where the sum of all the values
+    equals 1. The ratios between the values stay the same. Bassically, the returned distribution
+    contains all the passed in values divided by their sum.
+    <distribution> must be a dictionary containing all numerical values.
+    """
     normalized_distribution = distribution.copy()
     normalize(normalized_distribution)
     return normalized_distribution
 
 
 def set_negative_values_to_0(distribution):
-    # TODO: Docstring
+    """ Mutates the passed in distribution to make all values (not keys) which were negative become
+    0. Values which weren't negative stay the same.
+    <distribution> must be a dictionary containing all numerical values.
+    """
     for key in distribution:
         if distribution[key] < 0:
             distribution[key] = 0
