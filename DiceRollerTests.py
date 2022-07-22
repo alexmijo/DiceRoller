@@ -185,10 +185,60 @@ def set_negative_values_to_0_test():
         num_failed += 1
 
 
+class GamblersFallacyDiceTests:
+    def init_test():
+        """ Returns boolean representing whether test passed or not. Prints results only if it fails.
+        Increments num_tests no matter what, increments num_failed iff it fails.
+        """
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        num_dice, num_sides, aggressiveness = 2, 6, 8
+        dice = DiceRoller.GamblersFallacyDice(num_dice, num_sides, aggressiveness)
+        if dice.aggressiveness != aggressiveness:
+            print(
+                f"GamblersFallacyDiceTests.__init__test:",
+                "dice = DiceRoller.GamblersFallacyDice({num_dice}, {num_sides}, {aggressiveness})")
+            print("Expected dice.aggressiveness:", aggressiveness, "Actual:", dice.aggressiveness)
+            failed = True
+        expected_frequencies = {2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0}
+        if dice.frequencies != expected_frequencies:
+            print(
+                f"GamblersFallacyDiceTests.__init__test:",
+                "dice = DiceRoller.GamblersFallacyDice({num_dice}, {num_sides}, {aggressiveness})")
+            print("Expected dice.frequencies:", expected_frequencies, "Actual:", dice.frequencies)
+            failed = True
+        expected_probabilities = {2: 1/36, 3: 2/36, 4: 3/36, 5: 4/36,
+                                  6: 5/36, 7: 6/36, 8: 5/36, 9: 4/36, 10: 3/36, 11: 2/36, 12: 1/36}
+        if not dicts_equal_up_to_float_threshold(dice.probabilities, expected_probabilities):
+            print(
+                f"GamblersFallacyDiceTests.__init__test:",
+                "dice = DiceRoller.GamblersFallacyDice({num_dice}, {num_sides}, {aggressiveness})")
+            print(
+                "Expected dice.probabilities:", expected_probabilities, "Actual:",
+                dice.probabilities)
+            failed = True
+        if dice.redo_states or dice.undo_states:
+            print(
+                f"GamblersFallacyDiceTests.__init__test:",
+                "dice = DiceRoller.GamblersFallacyDice({num_dice}, {num_sides}, {aggressiveness})")
+            print(
+                "Expected dice.redo_states and dice.undo_states to be empty lists",
+                "Actual dice.redo_states:", dice.redo_states, "Actual dice.undo_states:",
+                dice.undo_states)
+            failed = True
+
+        if (failed):
+            num_failed += 1
+
+
 dice_sum_probability_test()
 normalize_test()
 normalized_test()
 set_negative_values_to_0_test()
+GamblersFallacyDiceTests.init_test()
 
 if (num_failed == 0):
     print(num_run, "tests run. All tests passed.")
