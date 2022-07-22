@@ -231,19 +231,36 @@ class GamblersFallacyDice:
 
 
 class CatanDice(GamblersFallacyDice):
-    """ Represents GamblersFallacyDice which distinguish between 7s rolled by 
+    """ Represents GamblersFallacyDice which distinguish between 7s rolled by different players.
+    Acts the same as GamblersFallacyDice except that for purposes of determining probabilities (and
+    not for purposes of displaying the number of times each roll has already been rolled) the number
+    of 7s rolled so far is taken to be the number of players multiplied by the number of times the
+    current player (the player who's turn it is to roll) has rolled a 7 so far. This causes players
+    who've rolled less 7s than expected to have an increased chance of rolling a 7, and players
+    who've rolled more 7s than expected to have a decreased chance of rolling a 7. This is useful
+    because in Settlers of Catan rolling a 7 is very powerful and benefits only the player who's
+    turn it is to roll.
     """
 
     def __init__(self, num_players, aggressiveness):
-        # TODO: Docstring
+        """ See the docstring for GamblersFallacyDice.__init__(). Initializes with 2 six sided dice,
+        and <num_players> players (which matters here for 7s).
+        """
         GamblersFallacyDice.__init__(self, num_dice=2, num_sides=6, aggressiveness=aggressiveness)
         self.num_players = num_players
+        # The player who's turn it is to roll
         self.curr_player = 1
+        # Maps each player (integer 1 through num_players) to the number of times that player has
+        #  rolled a 7. 
         self.players_seven_counts = {player: 0 for player in range(1, num_players + 1)}
         self.undo_sevens_states = []
         self.redo_sevens_states = []
 
+    # TODO: Add comments within the code below here in this class.
     def roll(self):
+        """ Returns a roll of these dice and remembers that this roll occurred (which will cause
+        probabilities to be changed).
+        """
         self.undo_sevens_states.append(self.players_seven_counts.copy())
         self.redo_sevens_states = []
         self.frequencies[7] = self.players_seven_counts[self.curr_player] * self.num_players
@@ -257,7 +274,8 @@ class CatanDice(GamblersFallacyDice):
         return roll
 
     def undo(self):
-        # TODO: Docstring
+        """ Undoes the effects of the previous roll.
+        """
         GamblersFallacyDice.undo(self)
         self.redo_sevens_states.append(self.players_seven_counts.copy())
         self.players_seven_counts = self.undo_sevens_states.pop()
@@ -266,7 +284,9 @@ class CatanDice(GamblersFallacyDice):
             self.curr_player = self.num_players
 
     def redo(self):
-        # TODO: Docstring
+        """ Redoes the effects of the previous roll which was just undone. Can be called multiple
+        times in a row to redo multiple consecutive undos.
+        """
         GamblersFallacyDice.redo(self)
         self.undo_sevens_states.append(self.players_seven_counts.copy())
         self.players_seven_counts = self.redo_sevens_states.pop()
@@ -275,6 +295,13 @@ class CatanDice(GamblersFallacyDice):
             self.curr_player = 1
 
     def __str__(self):
+        """ Returns a well formatted string which displays the current (adjusted) probabilities of
+        rolling each possible roll and the number of times each roll has already occurred.
+        Probabilities are rounded to the nearest percent. Players other than the current player have
+        their number of previously rolled 7s displayed, but no corresponding probability is
+        displayed (since it's impossible for any players other than the current player to roll a 7
+        during the current player's turn).
+        """
         self.frequencies[7] = self.players_seven_counts[self.curr_player] * self.num_players
         self.update_probabilities()
         string = ""
