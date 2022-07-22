@@ -4,7 +4,7 @@ import math
 # Set to True in order to use an experimental (and IMO not as good) way of adhusting probability
 #  such that probability is guaranteed (I think) to increase monotonically with increasing
 #  underrepresentedness
-use_multiplicative_adjusting = False
+USE_MULTIPLICATIVE_ADJUSTING = False
 
 
 def dice_sum_probability(sum, num_dice, num_sides):
@@ -91,7 +91,7 @@ class GamblersFallacyDice:
         # Previous self.frequencies maps to return to with undo/redo
         self.undo_states = []
         self.redo_states = []
-        if use_multiplicative_adjusting:
+        if USE_MULTIPLICATIVE_ADJUSTING:
             # Needed for solving the problem of when a roll's frequency is 0
             self.num_individual_dice_roll_permutations = num_sides ** num_dice
 
@@ -104,7 +104,7 @@ class GamblersFallacyDice:
         (either multiplicative or additive, depending on the value of use_multiplicative_adjusting)
         will be greater than that of roll B.
         """
-        if use_multiplicative_adjusting:
+        if USE_MULTIPLICATIVE_ADJUSTING:
             # This is an experimental way of adhusting probability such that probability is
             #  guaranteed (I think) to increase monotonically with increasing underrepresentedness.
             #  IMO this isn't as good as the other, additive way of adjusting. It's called

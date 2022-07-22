@@ -1,5 +1,8 @@
 import DiceRoller
 
+# TODO: Figure out some Python testing utility to use in the future, instead of doing this stuff
+#  manually.
+
 # Maximum difference between 2 floating point numbers for them to be considered equal
 FLOAT_THRESHOLD = 0.00001
 
@@ -186,6 +189,11 @@ def set_negative_values_to_0_test():
 
 
 class GamblersFallacyDiceTests:
+    # TODO: Deal with this, put it somewhere at beggining of module, not in each docstring.
+    """ All tests returns boolean representing whether test passed or not. All tests prints results only if test
+    fails. Increments num_tests no matter what, increments num_failed iff it fails.
+    """
+
     def init_test():
         """ Returns boolean representing whether test passed or not. Prints results only if it fails.
         Increments num_tests no matter what, increments num_failed iff it fails.
@@ -229,6 +237,230 @@ class GamblersFallacyDiceTests:
                 "Actual dice.redo_states:", dice.redo_states, "Actual dice.undo_states:",
                 dice.undo_states)
             failed = True
+
+        if (failed):
+            num_failed += 1
+
+    def update_probabilities_test():
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        # TODO
+
+        if (failed):
+            num_failed += 1
+
+    def roll_without_updating_frequencies_test():
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        # TODO
+
+        if (failed):
+            num_failed += 1
+
+    def roll_test():
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        # TODO
+
+        if (failed):
+            num_failed += 1
+
+    def can_undo_test():
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        # TODO
+
+        if (failed):
+            num_failed += 1
+
+    def undo_test():
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        # TODO
+
+        if (failed):
+            num_failed += 1
+
+    def can_redo_test():
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        # TODO
+
+        if (failed):
+            num_failed += 1
+
+    def redo_test():
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        # TODO
+
+        if (failed):
+            num_failed += 1
+
+    def str_test():
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        # TODO
+
+        if (failed):
+            num_failed += 1
+
+
+class CatanDiceTests:
+    def init_test():
+        # TODO: Modify this to actually use CatanDice (currently just copied from
+        #  GamblersFallacyDiceTests.init_test())
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        num_dice, num_sides, aggressiveness = 2, 6, 8
+        dice = DiceRoller.GamblersFallacyDice(num_dice, num_sides, aggressiveness)
+        if dice.aggressiveness != aggressiveness:
+            print(
+                f"GamblersFallacyDiceTests.__init__test:",
+                "dice = DiceRoller.GamblersFallacyDice({num_dice}, {num_sides}, {aggressiveness})")
+            print("Expected dice.aggressiveness:", aggressiveness, "Actual:", dice.aggressiveness)
+            failed = True
+        expected_frequencies = {2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0}
+        if dice.frequencies != expected_frequencies:
+            print(
+                f"GamblersFallacyDiceTests.__init__test:",
+                "dice = DiceRoller.GamblersFallacyDice({num_dice}, {num_sides}, {aggressiveness})")
+            print("Expected dice.frequencies:", expected_frequencies, "Actual:", dice.frequencies)
+            failed = True
+        expected_probabilities = {2: 1/36, 3: 2/36, 4: 3/36, 5: 4/36,
+                                  6: 5/36, 7: 6/36, 8: 5/36, 9: 4/36, 10: 3/36, 11: 2/36, 12: 1/36}
+        if not dicts_equal_up_to_float_threshold(dice.probabilities, expected_probabilities):
+            print(
+                f"GamblersFallacyDiceTests.__init__test:",
+                "dice = DiceRoller.GamblersFallacyDice({num_dice}, {num_sides}, {aggressiveness})")
+            print(
+                "Expected dice.probabilities:", expected_probabilities, "Actual:",
+                dice.probabilities)
+            failed = True
+        if dice.redo_states or dice.undo_states:
+            print(
+                f"GamblersFallacyDiceTests.__init__test:",
+                "dice = DiceRoller.GamblersFallacyDice({num_dice}, {num_sides}, {aggressiveness})")
+            print(
+                "Expected dice.redo_states and dice.undo_states to be empty lists",
+                "Actual dice.redo_states:", dice.redo_states, "Actual dice.undo_states:",
+                dice.undo_states)
+            failed = True
+
+        if (failed):
+            num_failed += 1
+
+    def update_probabilities_test():
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        # TODO
+
+        if (failed):
+            num_failed += 1
+
+    def roll_without_updating_frequencies_test():
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        # TODO
+
+        if (failed):
+            num_failed += 1
+
+    def roll_test():
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        # TODO
+
+        if (failed):
+            num_failed += 1
+
+    def can_undo_test():
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        # TODO
+
+        if (failed):
+            num_failed += 1
+
+    def undo_test():
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        # TODO
+
+        if (failed):
+            num_failed += 1
+
+    def can_redo_test():
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        # TODO
+
+        if (failed):
+            num_failed += 1
+
+    def redo_test():
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        # TODO
+
+        if (failed):
+            num_failed += 1
+
+    def str_test():
+        global num_run
+        global num_failed
+        num_run += 1
+        failed = False
+
+        # TODO
 
         if (failed):
             num_failed += 1
