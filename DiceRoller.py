@@ -346,10 +346,14 @@ def run_catan(num_players, aggressiveness):
     <num_player> must be a positive integer.
     <aggressiveness> must be a non-negative number.
     """
+    names = {}
+    for player in range(1, num_players + 1):
+        prompt = f"Enter Player {player}'s name: "
+        names[player] = input(prompt)
     dice = CatanDice(num_players, aggressiveness)
     while True:
         print(dice)
-        prompt = f"Player {dice.curr_player}'s turn. "
+        prompt = f"{names[dice.curr_player]}'s turn. "
         if dice.can_undo() and dice.can_redo():
             prompt += "Press Enter to roll, Ctrl+c to quit, or type UNDO or REDO: "
         elif dice.can_undo():
@@ -394,13 +398,17 @@ def run_no_split_7s_catan(num_players, aggressiveness):
     dice = GamblersFallacyDice(num_dice=2, num_sides=6, aggressiveness=aggressiveness)
     # Must keep track of which player's turn it is in this function since GamblersFallacyDice
     #  doesn't do that, unlike CatanDice.
+    names = []
+    for player in range(1, num_players + 1):
+        prompt = f"Enter Player {player}'s name: "
+        names.append(input(prompt))
     player = 1
     while True:
         player = player % num_players
         if player == 0:
             player = num_players
         print(dice)
-        prompt = f"Player {player}'s turn. "
+        prompt = f"{names[player]}'s turn. "
         if dice.can_undo() and dice.can_redo():
             prompt += "Press Enter to roll, Ctrl+c to quit, or type UNDO or REDO: "
         elif dice.can_undo():

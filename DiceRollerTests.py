@@ -537,3 +537,6 @@ def for_finding_optimal_aggressiveness(aggressiveness):
 # for_finding_optimal_aggressiveness(15)
 # 85 percent chance of a 6
 # for_finding_optimal_aggressiveness(14)
+
+
+print({roll: DiceRoller.dice_sum_probability(roll, 4, 4) * 4**4 for roll in range(4, 16 + 1)})
